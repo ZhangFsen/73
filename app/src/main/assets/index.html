@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<title>轻记</title>
+<style>
+:root{
+  --bg:#f6f8fb;
+  --surface:#ffffff;
+  --soft:#f2f5f9;
+  --text:#101828;
+  --sub:#748197;
+  --line:#e7ecf4;
+  --green:#28b15c;
+  --green-soft:#eaf9ef;
+  --purple:#7a5cff;
+  --blue:#2f7cf6;
+  --amber:#dd9c2f;
+  --shadow:0 10px 28px rgba(15,23,42,.05);
+  --radius:20px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Microsoft YaHei",Arial,sans-serif;color:var(--text)}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.app{max-width:520px;min-height:100vh;margin:0 auto;background:linear-gradient(180deg,#fbfcfe 0%,#f6f8fb 100%);position:relative;overflow:hidden}
+.status{height:env(safe-area-inset-top)}
+.shell{min-height:100vh;padding-bottom:88px}
+.page{padding:18px 18px 24px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin:4px 0 16px}
+.topbar.center{justify-content:center;position:relative}
+.topbar.center .left{position:absolute;left:0}
+.topbar.center .right{position:absolute;right:0;display:flex;gap:10px}
+.brand-wrap{display:flex;align-items:center;gap:10px}
+.brand-logo{width:34px;height:34px;border-radius:14px;background:#eaf9ef;border:1px solid #dcefe4;position:relative;box-shadow:0 6px 16px rgba(40,177,92,.12)}
+.brand-logo:before{content:"";position:absolute;left:16px;top:7px;width:3px;height:20px;border-radius:99px;background:#28b15c}
+.brand-logo:after{content:"";position:absolute;left:9px;top:8px;width:16px;height:9px;border-radius:7px;background:#28b15c;box-shadow:8px 10px 0 #8ed7a6,-1px 20px 0 #28b15c}
+.brand{font-size:30px;font-weight:900;letter-spacing:-.05em}
+.navtitle{font-size:20px;font-weight:860}
+.iconbtn,.textbtn{border:0;background:transparent;color:var(--text)}
+.iconbtn{width:38px;height:38px;border-radius:14px;background:rgba(255,255,255,.9);border:1px solid var(--line);display:grid;place-items:center;box-shadow:0 6px 16px rgba(15,23,42,.04);font-size:19px}
+.textbtn{font-size:24px;padding:4px}
+.header-actions{display:flex;gap:10px;align-items:center}
+.quick{height:54px;border-radius:18px;border:1px solid var(--line);background:var(--surface);display:flex;align-items:center;gap:10px;padding:0 14px;color:#8a94a7;box-shadow:var(--shadow);margin-bottom:14px}
+.quick i{font-style:normal;color:var(--amber);font-size:18px}
+.chips{display:flex;gap:8px;overflow:auto;padding:2px 0 10px}
+.chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.85);color:var(--sub);display:flex;align-items:center;font-size:12px;font-weight:760;white-space:nowrap}
+.chip.active{background:#eef5ff;color:var(--blue);border-color:#dbe8ff}
+.timeline-wrap{background:rgba(255,255,255,.55);border:1px solid #eef2f6;border-radius:22px;padding:10px 10px 4px}
+.timeline-row{display:grid;grid-template-columns:72px 46px 1fr;gap:10px;align-items:start;position:relative;padding:8px 0}
+.timeline-date{position:relative;min-height:68px}
+.date-pill{width:52px;border-radius:18px;background:var(--green-soft);color:var(--green);padding:8px 0;text-align:center;margin:2px auto 0;font-weight:860;line-height:1}
+.date-pill .d{font-size:16px}
+.date-pill .w{font-size:11px;margin-top:6px;opacity:.88}
+.timeline-date.empty .date-pill{visibility:hidden}
+.timeline-date::after{content:"";position:absolute;right:-12px;top:10px;width:2px;height:calc(100% + 12px);background:#dceee2;border-radius:2px}
+.timeline-row:last-child .timeline-date::after{display:none}
+.timeline-time{position:relative;padding-top:12px;color:#6f7d92;font-size:13px;font-weight:700;text-align:left}
+.timeline-time::before{content:"";position:absolute;left:-7px;top:18px;width:8px;height:8px;border-radius:50%;background:#93d7a9;box-shadow:0 0 0 3px #f6fff8}
+.note-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 14px 12px;box-shadow:var(--shadow);display:flex;gap:12px;align-items:flex-start}
+.note-card:active,.action-row:active,.setting-row:active,.remind-row:active{transform:scale(.995)}
+.note-icon{width:28px;height:28px;border-radius:10px;background:#f6f4ff;display:grid;place-items:center;font-size:14px;flex:0 0 28px}
+.note-main{flex:1;min-width:0}
+.note-title{font-size:16px;font-weight:840;line-height:1.35;margin:0 0 6px}
+.note-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;color:var(--sub);font-size:12px}
+.dot{color:#cad2df}
+.note-arrow{font-size:18px;color:#c3cad5;padding-top:2px}
+.fab{position:fixed;right:22px;bottom:90px;width:56px;height:56px;border:0;border-radius:50%;background:var(--green);color:#fff;font-size:30px;box-shadow:0 18px 38px rgba(40,177,92,.28);display:none;z-index:5}
+.stats-bar{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px}
+.stats-green{background:linear-gradient(135deg,#33bb62,#22a451);color:#fff;border-radius:18px;padding:14px;box-shadow:var(--shadow)}
+.stats-green .big{display:flex;justify-content:space-around;gap:10px;margin-top:6px}
+.stats-green .item{display:flex;flex-direction:column;align-items:center}
+.stats-green .item b{font-size:28px;line-height:1}
+.stats-green .item span{font-size:12px;opacity:.95}
+.small-panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center}
+.small-panel b{font-size:13px}
+.small-panel span{font-size:12px;color:var(--sub);margin-top:4px}
+.remind-list,.settings-list,.detail-box,.profile-panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.remind-row{display:grid;grid-template-columns:46px 1fr 26px;gap:12px;align-items:center;padding:14px;border-bottom:1px solid var(--line)}
+.remind-row:last-child,.setting-row:last-child,.todo-row:last-child{border-bottom:0}
+.remind-time{font-size:13px;font-weight:760;color:#627188}
+.remind-main b{display:block;font-size:15px;margin-bottom:5px}
+.remind-main .sub{font-size:12px;color:var(--sub)}
+.check{width:22px;height:22px;border-radius:50%;border:2px solid #b7c0cf;background:transparent;color:#fff;display:grid;place-items:center;font-size:13px}
+.check.done{background:var(--green);border-color:var(--green)}
+.profile-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.profile-panel{padding:14px}
+.cover{height:48px;border-radius:14px;background:linear-gradient(135deg,#8bc38f,#5cab67)}
+.user-row{display:flex;gap:12px;align-items:center;margin-top:-18px}
+.avatar{width:52px;height:52px;border-radius:18px;background:#fff;border:3px solid #fff;box-shadow:0 6px 14px rgba(15,23,42,.08);display:grid;place-items:center;font-size:24px}
+.user-name{font-size:16px;font-weight:850}
+.user-sub{font-size:12px;color:var(--sub);margin-top:4px}
+.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.quick-tile{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+.quick-tile b{display:block;font-size:13px;margin-bottom:4px}
+.quick-tile span{font-size:12px;color:var(--sub)}
+.settings-list{overflow:hidden}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-bottom:1px solid var(--line)}
+.setting-left{display:flex;align-items:center;gap:12px;font-weight:760}
+.setting-ico{width:20px;text-align:center;color:#4b5563}
+.chev{color:#c2c8d4}
+.detail-title{font-size:30px;font-weight:900;letter-spacing:-.04em;line-height:1.2;margin:24px 0 12px}
+.detail-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;color:var(--sub);margin-bottom:18px}
+.badge{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;background:#eef5ff;color:var(--blue);font-size:12px;font-weight:760}
+.badge.gray{background:#f2f4f8;color:#69758b}
+.body-text{font-size:17px;line-height:1.8;color:#243041}
+.body-text p{margin:0 0 16px}
+.section-title{font-size:15px;font-weight:840;margin:18px 0 10px}
+.todo-box{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.todo-row{display:flex;align-items:center;gap:12px;padding:14px 14px;border-bottom:1px solid var(--line)}
+.todo-row.done .todo-text{text-decoration:line-through;color:#97a0b0}
+.todo-row.done .check{background:var(--green);border-color:var(--green)}
+.detail-actions{display:grid;grid-template-columns:repeat(4,1fr);margin-top:18px;overflow:hidden}
+.action-row{min-height:70px;border:0;border-right:1px solid var(--line);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-weight:760;color:#4b5563}
+.action-row:last-child{border-right:0}
+.action-row b{font-size:20px;color:#111827}
+.modal{position:fixed;inset:0;display:none;align-items:flex-end;justify-content:center;background:rgba(15,23,42,.34);z-index:30}
+.sheet{width:100%;max-width:520px;background:#fff;border-radius:26px 26px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -18px 44px rgba(15,23,42,.18)}
+.sheet::before{content:"";display:block;width:42px;height:5px;border-radius:999px;background:#d8dde6;margin:0 auto 14px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sheet-head h3{margin:0;font-size:20px}
+.close-btn{width:36px;height:36px;border:0;border-radius:12px;background:#f4f6fa;color:#64748b}
+.field{width:100%;border:1px solid var(--line);background:#fafbfd;border-radius:16px;padding:14px;font-size:16px;outline:none;margin-bottom:10px;color:var(--text)}
+.field:focus{border-color:#c8dbd0;background:#fff}
+.textarea{min-height:130px;resize:none;line-height:1.6}
+.primary,.secondary,.danger{width:100%;height:50px;border-radius:16px;font-size:16px;font-weight:860;margin-top:8px}
+.primary{border:0;background:var(--green);color:#fff}
+.secondary{border:1px solid var(--line);background:#fff;color:#334155}
+.danger{border:1px solid #ffd5d5;background:#fff;color:#ef4444}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.tag{height:30px;padding:0 12px;border-radius:999px;background:#f2f6f9;color:#627188;display:flex;align-items:center;font-size:13px;font-weight:760}
+.toast{position:fixed;left:50%;bottom:94px;transform:translateX(-50%);padding:11px 16px;border-radius:999px;background:#111827;color:#fff;font-size:14px;box-shadow:0 14px 36px rgba(0,0,0,.24);z-index:40}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:520px;height:78px;padding:8px 28px calc(8px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);z-index:10}
+.tab{border:0;background:transparent;color:#8893a8;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:12px;font-weight:760}
+.tab .ico{font-size:22px;line-height:1}
+.tab.active{color:var(--green)}
+.hidden{display:none !important}
+.empty{padding:28px 18px;text-align:center;color:#97a0b0}
+@media (min-width:521px){
+  .app{box-shadow:0 30px 90px rgba(15,23,42,.08)}
+  .tabbar,.fab{position:absolute}
+}
+</style>
+</head>
+<body>
+<div id="app" class="app">
+  <div class="status"></div>
+  <div id="shell" class="shell">
+    <div id="content"></div>
+  </div>
+  <button id="fab" class="fab" onclick="openAdd()">＋</button>
+  <nav class="tabbar">
+    <button id="tab-home" class="tab" onclick="switchTab('home')"><span class="ico">☰</span><span>记录</span></button>
+    <button id="tab-reminders" class="tab" onclick="switchTab('reminders')"><span class="ico">◎</span><span>提醒</span></button>
+    <button id="tab-me" class="tab" onclick="switchTab('me')"><span class="ico">◉</span><span>我的</span></button>
+  </nav>
+</div>
+<div id="modal" class="modal"><div id="sheet" class="sheet"></div></div>
+<script>
+const STORE_KEY = 'qingji_schemeB_v141';
+const initialState = {
+  currentTab:'home',
+  route:{name:'home', noteId:null},
+  username:'Robert',
+  archived:36,
+  notes:[
+    {id:'n2', title:'明天下午三点电话客户', date:'2026-05-18', time:'14:30', tags:['工作'], status:['待办'], type:'call', body:['客户对我们方案比较感兴趣，希望进一步了解功能细节和报价。','准备好产品介绍和案例资料，重点说明核心功能和服务保障。','电话沟通后，及时记录客户反馈并跟进。'], todos:[{text:'准备产品介绍资料',done:true},{text:'整理案例和报价方案',done:false},{text:'确认客户联系人和电话',done:false},{text:'通话后记录反馈并跟进',done:false}]},
+    {id:'n1', title:'给客户发报价单', date:'2026-05-18', time:'09:30', tags:['工作'], status:['明天下午提醒'], type:'briefcase', body:['客户上周询问了我们的企业版解决方案，需要一份详细的报价单。','根据最新需求文档和沟通记录，整理好功能清单、价格和交付周期。','注意区分基础版和高级版的差异，并附上可选增值服务说明，方便客户决策。'], todos:[{text:'整理功能清单与对应价格',done:false},{text:'确认交付周期与付款条件',done:false},{text:'内部审核后发送给客户',done:false}]},
+    {id:'n3', title:'整理产品方案', date:'2026-05-17', time:'16:20', tags:['工作'], status:[], type:'doc', body:['围绕核心用户需求，梳理产品目标与关键功能，明确 MVP 范围和下一步计划。','本次重点输出方案结构、页面流程及优先级排序，为评审和开发对齐做好准备。'], todos:[{text:'梳理核心需求与场景',done:true},{text:'整理功能清单与优先级',done:false},{text:'绘制页面结构图',done:false},{text:'补充交互说明',done:false}]},
+    {id:'n4', title:'日本旅行计划', date:'2026-05-16', time:'21:15', tags:['生活','旅行'], status:['有图片'], type:'plane', body:['计划五月底去大阪和京都，先确定往返机票和住宿，再整理 4 天路线安排。','优先考虑清水寺、伏见稻荷、奈良公园和心斋桥。'], todos:[{text:'比较机票价格',done:false},{text:'预订第一晚酒店',done:true},{text:'列出景点顺序',done:false}]},
+    {id:'n5', title:'产品原型草图', date:'2026-05-16', time:'10:05', tags:['设计'], status:['有图片'], type:'pencil', body:['首页继续保持内容优先，减少文件管理感，让信息更像连续记录流。','详情页弱化工具栏存在感，操作只保留必要功能。'], todos:[{text:'整理成组件规范',done:false},{text:'补充点击反馈说明',done:false}]},
+    {id:'n6', title:'《长期主义》读书笔记', date:'2026-05-15', time:'22:40', tags:['学习','阅读'], status:[], type:'book', body:['长期主义不是拖延当下，而是让每个当下都服务于更长远的目标。','与其追求短期刺激，不如建立持续积累的节奏。'], quotes:[{q:'长期主义的核心是把目光放得足够长远，不被短期波动和噪音干扰。',p:'第 28 页'},{q:'持续不断地积累微小进步，最终会带来巨大的回报。',p:'第 45 页'},{q:'能抵制短期诱惑、耐心等待长期回报的人，往往能走得更远。',p:'第 72 页'}], todos:[]}
+  ],
+  reminders:[
+    {id:'r1', title:'给客户回电话', date:'2026-05-18', time:'15:00', tag:'工作', done:false, noteId:'n2'},
+    {id:'r2', title:'发送报价单附件', date:'2026-05-19', time:'09:00', tag:'客户', done:false, noteId:'n1'},
+    {id:'r3', title:'查看大阪机票', date:'2026-05-19', time:'20:00', tag:'旅行', done:false, noteId:'n4'},
+    {id:'r4', title:'总结本周工作', date:'2026-05-22', time:'17:00', tag:'回顾', done:false, noteId:'n3'},
+    {id:'r5', title:'整理读书摘录', date:'2026-05-24', time:'10:00', tag:'阅读', done:true, noteId:'n6'}
+  ]
+};
+
+let state = loadState();
+
+function deepClone(v){ return JSON.parse(JSON.stringify(v)); }
+function loadState(){
+  try{
+    const stored = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+    const next = deepClone(initialState);
+    Object.assign(next, stored || {});
+    return next;
+  }catch(e){
+    return deepClone(initialState);
+  }
+}
+function saveState(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+
+function noteIcon(type){
+  return {call:'📞', briefcase:'💼', doc:'📁', plane:'✈️', pencil:'🖍️', book:'📖'}[type] || '📝';
+}
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g, function(m){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+  });
+}
+function asDate(date, time){ return new Date((date || '2026-01-01') + 'T' + (time || '00:00') + ':00'); }
+function sortNotes(arr){ return [...arr].sort((a,b)=>asDate(b.date,b.time)-asDate(a.date,a.time)); }
+function sortReminders(arr){ return [...arr].sort((a,b)=>asDate(a.date,a.time)-asDate(b.date,b.time)); }
+function fmtDate(date){
+  const p = (date||'').split('-');
+  return p.length===3 ? (p[0]+'.'+p[1]+'.'+p[2]) : date;
+}
+function monthDay(date){
+  const p = (date||'').split('-');
+  return p.length===3 ? (p[1]+'.'+p[2]) : date;
+}
+function weekLabel(date){
+  const map = ['周日','周一','周二','周三','周四','周五','周六'];
+  const d = new Date(date+'T00:00:00');
+  return map[d.getDay()] || '';
+}
+function metaLine(items){
+  return items.filter(Boolean).map(esc).join('<span class="dot">·</span>');
+}
+function setActiveTab(){
+  ['home','reminders','me'].forEach(function(tab){
+    const el = document.getElementById('tab-'+tab);
+    if(el) el.classList.toggle('active', state.currentTab === tab);
+  });
+  const fab = document.getElementById('fab');
+  fab.style.display = state.route.name === 'home' ? 'block' : 'none';
+}
+function switchTab(tab){
+  state.currentTab = tab;
+  state.route = {name:tab, noteId:null};
+  saveState();
+  renderPage();
+}
+function openDetail(noteId){
+  state.route = {name:'detail', noteId:noteId};
+  saveState();
+  renderPage();
+}
+function renderPage(){
+  const content = document.getElementById('content');
+  if(state.route.name === 'detail'){
+    content.innerHTML = renderDetail(state.route.noteId);
+  }else if(state.route.name === 'reminders'){
+    content.innerHTML = renderReminders();
+  }else if(state.route.name === 'me'){
+    content.innerHTML = renderMe();
+  }else{
+    content.innerHTML = renderHome();
+  }
+  setActiveTab();
+}
+function renderHome(){
+  const notes = sortNotes(state.notes);
+  let lastDate = '';
+  const rows = notes.map(function(n){
+    const showDate = n.date !== lastDate;
+    lastDate = n.date;
+    return `
+      <div class="timeline-row">
+        <div class="timeline-date ${showDate ? '' : 'empty'}">
+          <div class="date-pill"><div class="d">${esc(monthDay(n.date))}</div><div class="w">${esc(weekLabel(n.date))}</div></div>
+        </div>
+        <div class="timeline-time">${esc(n.time)}</div>
+        <div class="note-card" onclick="openDetail('${n.id}')">
+          <div class="note-icon">${noteIcon(n.type)}</div>
+          <div class="note-main">
+            <div class="note-title">${esc(n.title)}</div>
+            <div class="note-meta">${metaLine([...(n.tags||[]), ...(n.status||[])])}</div>
+          </div>
+          <div class="note-arrow">›</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  return `
+    <main class="page">
+      <div class="topbar">
+        <div class="brand-wrap"><div class="brand-logo"></div><div class="brand">轻记</div></div>
+        <div class="header-actions">
+          <button class="textbtn" onclick="openSearch()">⌕</button>
+          <button class="iconbtn" onclick="openAdd()">＋</button>
+        </div>
+      </div>
+      <div class="quick" onclick="openAdd()"><i>✎</i><span>今天想记点什么？</span></div>
+      <div class="chips">
+        <div class="chip active">全部</div>
+        <div class="chip">工作</div>
+        <div class="chip">生活</div>
+        <div class="chip">学习</div>
+        <div class="chip">灵感</div>
+        <div class="chip">待办</div>
+      </div>
+      <div class="timeline-wrap">${rows}</div>
+    </main>
+  `;
+}
+function renderReminders(){
+  const all = sortReminders(state.reminders);
+  const todo = all.filter(function(r){ return !r.done; });
+  const doneCount = all.filter(function(r){ return r.done; }).length;
+  const rows = all.map(function(r){
+    return `
+      <div class="remind-row">
+        <div class="remind-time">${esc(r.time)}</div>
+        <div class="remind-main" onclick="${r.noteId ? `openDetail('${r.noteId}')` : `void(0)`}">
+          <b>${esc(r.title)}</b>
+          <div class="sub">${metaLine([fmtDate(r.date), r.tag])}</div>
+        </div>
+        <button class="check ${r.done ? 'done' : ''}" onclick="toggleReminder('${r.id}')">${r.done ? '✓' : ''}</button>
+      </div>
+    `;
+  }).join('');
+  return `
+    <main class="page">
+      <div class="topbar center">
+        <button class="textbtn left" onclick="switchTab('home')">‹</button>
+        <div class="navtitle">提醒</div>
+        <div class="right"><button class="iconbtn" onclick="openReminderAdd()">＋</button></div>
+      </div>
+      <div class="stats-bar">
+        <div class="stats-green">
+          <div style="font-size:13px;font-weight:760">提醒概览</div>
+          <div class="big">
+            <div class="item"><b>${todo.length}</b><span>待提醒</span></div>
+            <div class="item"><b>${doneCount}</b><span>已完成</span></div>
+          </div>
+        </div>
+        <div class="small-panel">
+          <b>按时间排序</b>
+          <span>连续查看今日与未来提醒</span>
+        </div>
+      </div>
+      <div class="remind-list">${rows || '<div class="empty">还没有提醒</div>'}</div>
+    </main>
+  `;
+}
+function renderMe(){
+  const totalNotes = state.notes.length + 122;
+  const wait = state.reminders.filter(function(r){ return !r.done; }).length;
+  return `
+    <main class="page">
+      <div class="topbar center">
+        <div class="navtitle">我的</div>
+      </div>
+      <div class="profile-wrap">
+        <div class="profile-panel">
+          <div class="cover"></div>
+          <div class="user-row">
+            <div class="avatar">👤</div>
+            <div>
+              <div class="user-name">${esc(state.username)}</div>
+              <div class="user-sub">已记录 ${totalNotes} 条备忘</div>
+              <div class="user-sub">待提醒 ${wait} 条</div>
+            </div>
+          </div>
+        </div>
+        <div class="profile-panel">
+          <div class="quick-grid" style="margin-top:0">
+            <div class="quick-tile"><b>本周新增</b><span>12</span></div>
+            <div class="quick-tile"><b>待提醒</b><span>${wait}</span></div>
+            <div class="quick-tile"><b>已归档</b><span>${state.archived}</span></div>
+          </div>
+          <div class="quick-grid">
+            <div class="quick-tile" onclick="toast('标签管理入口')"><b>标签整理</b><span>常用分类</span></div>
+            <div class="quick-tile" onclick="toast('归档内容入口')"><b>归档内容</b><span>历史记录</span></div>
+            <div class="quick-tile" onclick="exportAll()"><b>导出备忘</b><span>TXT</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-list" style="margin-top:12px">
+        ${settingRow('◇','我的标签',"toast('标签管理入口')")}
+        ${settingRow('▣','归档内容',"toast('归档内容功能预留')")}
+        ${settingRow('⇩','导出备忘录',"exportAll()")}
+        ${settingRow('☁','同步与备份',"toast('当前为本地演示数据')")}
+        ${settingRow('⌾','通知设置',"setDailyReminder()")}
+        ${settingRow('☾','外观与深色模式',"toast('外观模式入口')")}
+        ${settingRow('?','帮助与反馈',"feedback()")}
+      </div>
+    </main>
+  `;
+}
+function settingRow(icon, text, action){
+  return `<div class="setting-row" onclick="${action}"><div class="setting-left"><span class="setting-ico">${icon}</span><span>${text}</span></div><span class="chev">›</span></div>`;
+}
+function renderDetail(noteId){
+  const n = state.notes.find(function(x){ return x.id === noteId; }) || state.notes[0];
+  const body = n.type === 'book'
+    ? ((n.quotes||[]).map(function(q){
+        return `<div class="detail-box" style="padding:14px;margin-bottom:12px"><div style="font-size:28px;line-height:.8;color:#d8e2ff">“</div><div style="font-size:16px;line-height:1.65">${esc(q.q)}</div><div style="font-size:12px;color:var(--sub);margin-top:8px">${esc(q.p)}</div></div>`;
+      }).join('') + `<div class="body-text">${(n.body||[]).map(function(p){ return `<p>${esc(p)}</p>`; }).join('')}</div>`)
+    : (`<div class="body-text">${(n.body||[]).map(function(p){ return `<p>${esc(p)}</p>`; }).join('')}</div>`);
+  const todos = (n.todos||[]).length ? `
+    <div class="section-title">清单</div>
+    <div class="todo-box">
+      ${(n.todos||[]).map(function(t, idx){
+        return `<div class="todo-row ${t.done ? 'done' : ''}" onclick="toggleTodo('${n.id}', ${idx})">
+          <div class="check ${t.done ? 'done' : ''}">${t.done ? '✓' : ''}</div>
+          <div class="todo-text">${esc(t.text)}</div>
+        </div>`;
+      }).join('')}
+    </div>` : '';
+  return `
+    <main class="page">
+      <div class="topbar center">
+        <button class="textbtn left" onclick="switchTab('home')">‹</button>
+        <div class="navtitle">详情</div>
+        <div class="right">
+          <button class="textbtn" onclick="shareNote('${n.id}')">⇧</button>
+          <button class="textbtn" onclick="openEdit('${n.id}')">⋯</button>
+        </div>
+      </div>
+      <div class="detail-title">${esc(n.title)}</div>
+      <div class="detail-meta">
+        <span>${esc(fmtDate(n.date))} ${esc(n.time)}</span>
+        ${(n.tags||[]).map(function(t){ return `<span class="badge">${esc(t)}</span>`; }).join('')}
+        ${(n.status||[]).map(function(s){ return `<span class="badge gray">${esc(s)}</span>`; }).join('')}
+      </div>
+      ${body}
+      ${todos}
+      <div class="detail-box detail-actions">
+        <button class="action-row" onclick="setReminderFromNote('${n.id}')"><b>⌾</b><span>提醒</span></button>
+        <button class="action-row" onclick="toast('标签编辑入口')"><b>◇</b><span>标签</span></button>
+        <button class="action-row" onclick="toast('附件入口已预留')"><b>⌁</b><span>附件</span></button>
+        <button class="action-row" onclick="shareNote('${n.id}')"><b>↗</b><span>分享</span></button>
+      </div>
+    </main>
+  `;
+}
+function toggleTodo(noteId, idx){
+  const note = state.notes.find(function(n){ return n.id === noteId; });
+  if(!note || !note.todos || !note.todos[idx]) return;
+  note.todos[idx].done = !note.todos[idx].done;
+  saveState();
+  renderPage();
+}
+function toggleReminder(id){
+  const r = state.reminders.find(function(x){ return x.id === id; });
+  if(!r) return;
+  r.done = !r.done;
+  saveState();
+  renderPage();
+}
+function openModal(inner){
+  document.getElementById('sheet').innerHTML = inner;
+  document.getElementById('modal').style.display = 'flex';
+}
+function closeModal(){
+  document.getElementById('modal').style.display = 'none';
+}
+document.getElementById('modal').addEventListener('click', function(e){
+  if(e.target.id === 'modal') closeModal();
+});
+function openAdd(){
+  openModal(`
+    <div class="sheet-head"><h3>快速记录</h3><button class="close-btn" onclick="closeModal()">✕</button></div>
+    <input id="note-title" class="field" placeholder="标题，例如：联系客户确认报价">
+    <textarea id="note-body" class="field textarea" placeholder="补充内容，可留空"></textarea>
+    <div class="tags">
+      <span class="tag" onclick="document.getElementById('note-tag').value='工作'">工作</span>
+      <span class="tag" onclick="document.getElementById('note-tag').value='待办'">待办</span>
+      <span class="tag" onclick="document.getElementById('note-tag').value='旅行'">旅行</span>
+      <span class="tag" onclick="document.getElementById('note-tag').value='阅读'">阅读</span>
+    </div>
+    <input id="note-tag" class="field" placeholder="标签，可选">
+    <button class="primary" onclick="saveAdd()">保存备忘</button>
+    <button class="secondary" onclick="closeModal()">取消</button>
+  `);
+}
+function saveAdd(){
+  const title = document.getElementById('note-title').value.trim();
+  const body = document.getElementById('note-body').value.trim();
+  const tag = document.getElementById('note-tag').value.trim();
+  if(!title){ toast('请输入标题'); return; }
+  const now = new Date();
+  const date = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+  const time = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  state.notes.unshift({
+    id:'n'+Date.now(),
+    title:title,
+    date:date,
+    time:time,
+    tags: tag ? [tag] : [],
+    status:[],
+    type:'doc',
+    body:[body || title],
+    todos:[]
+  });
+  saveState();
+  closeModal();
+  switchTab('home');
+}
+function openEdit(id){
+  const n = state.notes.find(function(x){ return x.id===id; });
+  if(!n) return;
+  openModal(`
+    <div class="sheet-head"><h3>编辑备忘</h3><button class="close-btn" onclick="closeModal()">✕</button></div>
+    <input id="edit-title" class="field" value="${esc(n.title)}">
+    <textarea id="edit-body" class="field textarea">${esc((n.body||[]).join('\n\n'))}</textarea>
+    <button class="primary" onclick="saveEdit('${id}')">保存修改</button>
+    <button class="danger" onclick="deleteNote('${id}')">删除备忘</button>
+    <button class="secondary" onclick="closeModal()">取消</button>
+  `);
+}
+function saveEdit(id){
+  const n = state.notes.find(function(x){ return x.id===id; });
+  if(!n) return;
+  n.title = document.getElementById('edit-title').value.trim() || n.title;
+  n.body = document.getElementById('edit-body').value.split(/\n\s*\n|\n/).map(function(x){ return x.trim(); }).filter(Boolean);
+  saveState();
+  closeModal();
+  openDetail(id);
+}
+function deleteNote(id){
+  if(!confirm('确定删除这条备忘吗？')) return;
+  state.notes = state.notes.filter(function(n){ return n.id !== id; });
+  state.reminders = state.reminders.filter(function(r){ return r.noteId !== id; });
+  saveState();
+  closeModal();
+  switchTab('home');
+}
+function openSearch(){
+  openModal(`
+    <div class="sheet-head"><h3>搜索备忘</h3><button class="close-btn" onclick="closeModal()">✕</button></div>
+    <input id="search-keyword" class="field" placeholder="输入关键词" oninput="searchNotes(this.value)">
+    <div id="search-results" class="detail-box"><div class="empty">输入关键词查找内容</div></div>
+    <button class="secondary" onclick="closeModal()">关闭</button>
+  `);
+}
+function searchNotes(keyword){
+  const box = document.getElementById('search-results');
+  const q = (keyword || '').trim();
+  if(!q){ box.innerHTML = '<div class="empty">输入关键词查找内容</div>'; return; }
+  const results = sortNotes(state.notes.filter(function(n){
+    return (n.title + ' ' + (n.body||[]).join(' ')).indexOf(q) > -1;
+  }));
+  box.innerHTML = results.length ? results.map(function(n){
+    return `<div class="setting-row" onclick="closeModal();openDetail('${n.id}')">
+      <div class="setting-left"><span class="setting-ico">${noteIcon(n.type)}</span><div><div style="font-weight:800">${esc(n.title)}</div><div style="font-size:12px;color:var(--sub);margin-top:4px">${esc(fmtDate(n.date))} ${esc(n.time)}</div></div></div>
+      <span class="chev">›</span>
+    </div>`;
+  }).join('') : '<div class="empty">没有找到相关备忘</div>';
+}
+function openReminderAdd(){
+  openModal(`
+    <div class="sheet-head"><h3>新增提醒</h3><button class="close-btn" onclick="closeModal()">✕</button></div>
+    <input id="reminder-title" class="field" placeholder="提醒内容">
+    <input id="reminder-date" class="field" placeholder="日期，例如：2026-05-20">
+    <input id="reminder-time" class="field" placeholder="时间，例如：09:00">
+    <input id="reminder-tag" class="field" placeholder="标签，例如：工作">
+    <button class="primary" onclick="saveReminder()">保存提醒</button>
+    <button class="secondary" onclick="closeModal()">取消</button>
+  `);
+}
+function saveReminder(){
+  const title = document.getElementById('reminder-title').value.trim();
+  const date = document.getElementById('reminder-date').value.trim() || '2026-05-20';
+  const time = document.getElementById('reminder-time').value.trim() || '09:00';
+  const tag = document.getElementById('reminder-tag').value.trim() || '备忘';
+  if(!title){ toast('请输入提醒内容'); return; }
+  state.reminders.unshift({id:'r'+Date.now(), title:title, date:date, time:time, tag:tag, done:false});
+  saveState();
+  closeModal();
+  switchTab('reminders');
+}
+function setReminderFromNote(noteId){
+  const n = state.notes.find(function(x){ return x.id===noteId; });
+  if(!n) return;
+  state.reminders.unshift({
+    id:'r'+Date.now(),
+    title:n.title,
+    date:n.date,
+    time:'18:00',
+    tag:(n.tags||[])[0] || '备忘',
+    done:false,
+    noteId:noteId
+  });
+  saveState();
+  toast('已添加提醒');
+}
+function shareNote(id){
+  const n = state.notes.find(function(x){ return x.id===id; });
+  if(!n) return;
+  const text = n.title + '\n' + fmtDate(n.date) + ' ' + n.time + '\n\n' + (n.body||[]).join('\n\n');
+  try{
+    AndroidBridge.exportTextFile('轻记-' + n.title + '.txt', text);
+    toast('已导出到下载目录');
+  }catch(e){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ toast('已复制内容'); }).catch(function(){ toast('当前环境不支持分享'); });
+    }else{
+      toast('当前环境不支持分享');
+    }
+  }
+}
+function exportAll(){
+  const text = sortNotes(state.notes).map(function(n){
+    return '# ' + n.title + '\n' + fmtDate(n.date) + ' ' + n.time + '\n' + (n.body||[]).join('\n');
+  }).join('\n\n');
+  try{
+    AndroidBridge.exportTextFile('轻记备忘录导出.txt', text);
+    toast('已导出到下载目录');
+  }catch(e){
+    toast('导出需要在 App 中使用');
+  }
+}
+function setDailyReminder(){
+  const time = prompt('每日记录提醒时间，例如 21:00', '21:00');
+  if(!time) return;
+  try{
+    AndroidBridge.scheduleDailyReminder(time);
+    toast('已设置每日提醒 ' + time);
+  }catch(e){
+    toast('当前环境不支持原生提醒');
+  }
+}
+function feedback(){
+  const txt = prompt('写下反馈或建议');
+  if(txt){ toast('已保存反馈'); }
+}
+function toast(msg){
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 1600);
+}
+window.appBack = function(){
+  if(document.getElementById('modal').style.display === 'flex'){ closeModal(); return true; }
+  if(state.route.name === 'detail'){ switchTab('home'); return true; }
+  if(state.currentTab !== 'home'){ switchTab('home'); return true; }
+  return false;
+}
+window.openAddFromFloating = function(){ openAdd(); }
+
+renderPage();
+</script>
+</body>
+</html>

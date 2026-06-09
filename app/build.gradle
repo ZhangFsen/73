@@ -1,0 +1,38 @@
+plugins { id "com.android.application" }
+
+android {
+    namespace "com.qingji.memo"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.qingji.memo"
+        minSdk 23
+        targetSdk 35
+        versionCode 7
+        versionName "1.4.1-qingji-schemeB-brand"
+    }
+
+    signingConfigs {
+        stable {
+            storeFile file("../qingji-release-signing.jks")
+            storePassword "qingji2026"
+            keyAlias "qingji"
+            keyPassword "qingji2026"
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.stable
+        }
+        release {
+            signingConfig signingConfigs.stable
+            minifyEnabled false
+        }
+    }
+
+}
+
+dependencies {
+    implementation "androidx.core:core:1.13.1"
+}

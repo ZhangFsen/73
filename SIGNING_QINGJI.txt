@@ -1,0 +1,8 @@
+# 轻记签名说明
+
+项目内置签名文件：`qingji-release-signing.jks`。
+
+- applicationId: com.qingji.memo
+- 应用名称: 轻记
+- keyAlias: qingji
+- debug/release 构建均使用轻记签名文件，方便本地测试安装与覆盖升级。
